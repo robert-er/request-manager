@@ -8,4 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public interface RequestRepository extends JpaRepository<Request, Long> {
+
+    @Override
+    <S extends Request> S save(S request);
 }
