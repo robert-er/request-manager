@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "REQUEST")
+@Entity
 public class Request {
 
     @Id

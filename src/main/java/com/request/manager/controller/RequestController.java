@@ -7,8 +7,13 @@ import com.request.manager.exception.DetailsException;
 import com.request.manager.mapper.RequestMapper;
 import com.request.manager.service.RequestService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -18,10 +23,58 @@ public class RequestController {
 
     private final RequestService requestService;
     private final RequestMapper requestMapper;
+    private final SessionFactory sessionFactory;
+
+    private static final int PAGINATION = 2;
 
     @GetMapping("get/{id}")
     public OutgoingRequestDto getRequest(@PathVariable Long id) {
         return requestMapper.mapRequestToOutgoingRequestDto(requestService.findById(id));
+    }
+
+    @GetMapping("page/{page}")
+    public List<OutgoingRequestDto> getPageRequest(@PathVariable int page,
+                                                   @RequestParam String title) {
+        Session session = sessionFactory.openSession();
+        Query query = session.createQuery("From Request");
+        query.setFirstResult(page * PAGINATION);
+        query.setMaxResults(PAGINATION);
+        List<Request> requests = query.list();
+        List<OutgoingRequestDto> requestDtos= new ArrayList<>();
+        for (Request request : requests) {
+            requestDtos.add(requestMapper.mapRequestToOutgoingRequestDto(request));
+        }
+        return requestDtos;
+    }
+
+    @GetMapping("page/{page}/bytitle")
+    public List<OutgoingRequestDto> getPageRequestByTitle(@PathVariable int page, @RequestParam String title) {
+        Session session = sessionFactory.openSession();
+        String hql = "From Request r where title = '" + title + "' order by r.title";
+        Query query = session.createQuery(hql);
+        query.setFirstResult(page * PAGINATION);
+        query.setMaxResults(PAGINATION);
+        List<Request> requests = query.list();
+        List<OutgoingRequestDto> requestDtos= new ArrayList<>();
+        for (Request request : requests) {
+            requestDtos.add(requestMapper.mapRequestToOutgoingRequestDto(request));
+        }
+        return requestDtos;
+    }
+
+    @GetMapping("page/{page}/bystatus")
+    public List<OutgoingRequestDto> getPageRequestByStatus(@PathVariable int page, @RequestParam String status) {
+        Session session = sessionFactory.openSession();
+        String hql = "From Request r where status = '" + status + "' order by r.status";
+        Query query = session.createQuery(hql);
+        query.setFirstResult(page * PAGINATION);
+        query.setMaxResults(PAGINATION);
+        List<Request> requests = query.list();
+        List<OutgoingRequestDto> requestDtos= new ArrayList<>();
+        for (Request request : requests) {
+            requestDtos.add(requestMapper.mapRequestToOutgoingRequestDto(request));
+        }
+        return requestDtos;
     }
 
     @PostMapping
