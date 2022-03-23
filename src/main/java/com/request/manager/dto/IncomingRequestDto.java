@@ -5,7 +5,6 @@ import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Getter
 @EqualsAndHashCode
 public class IncomingRequestDto {
