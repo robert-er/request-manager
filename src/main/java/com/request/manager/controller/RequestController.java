@@ -34,22 +34,23 @@ public class RequestController {
                                             @RequestBody Optional<OptionalDescriptionDto> optionalDescriptionDto) {
         Request request = requestService.findById(id);
 
-        if (optionalDescriptionDto.isPresent() &&
-                !request.getDescription().equals(optionalDescriptionDto.get().getDescription().get())) {
-            request = changeDescriptionIfNeeded(id, optionalDescriptionDto.get().getDescription());
-        }
+        request = updateDescription(request, optionalDescriptionDto.get().getDescription());
         return requestMapper.mapRequestToOutgoingRequestDto(requestService.verifyRequest(request));
     }
+
+
 
     @PutMapping("accept/{id}")
     public OutgoingRequestDto acceptRequest(@PathVariable Long id,
                                             @RequestBody Optional<OptionalDescriptionDto> optionalDescriptionDto) {
         Request request = requestService.findById(id);
 
-        if (optionalDescriptionDto.isPresent() &&
-                !request.getDescription().equals(optionalDescriptionDto.get().getDescription().get())) {
-            request = changeDescriptionIfNeeded(id, optionalDescriptionDto.get().getDescription());
+        Optional<String> description = Optional.empty();
+
+        if (optionalDescriptionDto.isPresent()) {
+            description = optionalDescriptionDto.get().getDescription();
         }
+        request = updateDescription(request, description);
         return requestMapper.mapRequestToOutgoingRequestDto(requestService.acceptRequest(request));
     }
 
@@ -59,10 +60,7 @@ public class RequestController {
         Request request = requestService.findById(id);
 
         if (Status.VERIFIED.equals(request.getStatus())) {
-            if (detailsOptDescriptionDtoDto.hasDescription() &&
-                    !request.getDescription().equals(detailsOptDescriptionDtoDto.getDescription().get())) {
-                request = changeDescriptionIfNeeded(id, detailsOptDescriptionDtoDto.getDescription());
-            }
+            request = updateDescription(request, detailsOptDescriptionDtoDto.getDescription());
 
             String details = detailsOptDescriptionDtoDto.getDetails();
             if (details != null) {
@@ -94,10 +92,7 @@ public class RequestController {
                                             @RequestBody DetailsOptDescriptionDto detailsOptDescriptionDto) {
         Request request = requestService.findById(id);
 
-        if (detailsOptDescriptionDto.hasDescription() &&
-                !request.getDescription().equals(detailsOptDescriptionDto.getDescription().get())) {
-            request = changeDescriptionIfNeeded(id, detailsOptDescriptionDto.getDescription());
-        }
+        request = updateDescription(request, detailsOptDescriptionDto.getDescription());
 
         String details = detailsOptDescriptionDto.getDetails();
         if (details != null) {
@@ -109,9 +104,11 @@ public class RequestController {
         return requestMapper.mapRequestToOutgoingRequestDto(requestService.deleteRequest(request));
     }
 
-    private Request changeDescriptionIfNeeded(Long id, Optional<String> descriptionDto) {
-        Request request = requestService.findById(id);
-        descriptionDto.ifPresent(request::setDescription);
+    private Request updateDescription(Request request, Optional<String> description) {
+        if (description != null && description.isPresent() &&
+                !request.getDescription().equals(description.get())) {
+            request.setDescription(description.get());
+        }
         return request;
     }
 }
