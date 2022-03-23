@@ -2,10 +2,13 @@ package com.request.manager.service;
 
 import com.request.manager.domain.Request;
 import com.request.manager.domain.Status;
+import com.request.manager.exception.NotFoundException;
 import com.request.manager.exception.NotValidException;
 import com.request.manager.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -17,32 +20,47 @@ public class RequestServiceImpl implements RequestService {
     public Request createRequest(Request request) {
         validateRequest(request);
         request.setStatus(Status.CREATED);
-        return requestRepository.save(request);
+        return saveRequest(request);
+    }
+
+    @Override
+    public Request findById(Long id) {
+        return requestRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Request with id: %s does not exist", id)));
     }
 
     @Override
     public void deleteRequest(Long id) {
-
+        requestRepository.deleteById(id);
     }
 
     @Override
     public Request verifyRequest(Request request) {
-        return null;
+        request.setStatus(Status.VERIFIED);
+        return saveRequest(request);
     }
 
     @Override
     public Request acceptRequest(Request request) {
-        return null;
+        request.setStatus(Status.ACCEPTED);
+        return saveRequest(request);
     }
 
     @Override
     public Request rejectRequest(Request request) {
-        return null;
+        request.setStatus(Status.REJECTED);
+        return saveRequest(request);
     }
 
     @Override
     public Request publishRequest(Request request) {
-        return null;
+        request.setStatus(Status.PUBLISHED);
+        request.setUuid(UUID.randomUUID());
+        return saveRequest(request);
+    }
+
+    private Request saveRequest(Request request) {
+        return requestRepository.save(request);
     }
 
     private void validateRequest(Request request) {

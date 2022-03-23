@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 public interface RequestService {
 
     Request createRequest(Request request);
+    Request findById(Long id);
     void deleteRequest(Long id);
     Request verifyRequest(Request request);
     Request acceptRequest(Request request);
