@@ -15,4 +15,7 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     <S extends History> S save(S history);
 
     Optional<History> findByRequestId(Long id);
+
+    @Override
+    void deleteById(Long id);
 }

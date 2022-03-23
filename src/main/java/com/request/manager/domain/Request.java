@@ -1,10 +1,7 @@
 package com.request.manager.domain;
 
 import com.sun.istack.NotNull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
